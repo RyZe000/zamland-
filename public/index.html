@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Zamlandı — Aboneliklerin sessizce zamlanmasın</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#EEF0E6;
+    --paper-2:#E4E8DA;
+    --ink:#16241B;
+    --ink-soft:#516152;
+    --moss:#2F5233;
+    --moss-soft:#4A7350;
+    --signal:#E6472E;
+    --gold:#C9A227;
+    --line: rgba(22,36,27,0.14);
+    --radius:14px;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0; background:var(--paper); color:var(--ink);
+    font-family:'IBM Plex Sans', sans-serif; -webkit-font-smoothing:antialiased;
+  }
+  h1,h2,h3{ font-family:'Newsreader', serif; font-weight:600; letter-spacing:-0.01em; margin:0; }
+  .mono{ font-family:'IBM Plex Mono', monospace; }
+  a{ color:inherit; }
+  ::selection{ background:var(--gold); color:var(--ink); }
+  :focus-visible{ outline:2px solid var(--moss); outline-offset:3px; }
+  @media (prefers-reduced-motion: reduce){
+    *{ animation-duration:0.001ms !important; animation-iteration-count:1 !important; transition-duration:0.001ms !important; }
+  }
+
+  .wrap{ max-width:1120px; margin:0 auto; padding:0 28px; }
+
+  header{
+    display:flex; align-items:center; justify-content:space-between;
+    padding:24px 28px; max-width:1120px; margin:0 auto;
+  }
+  .logo{ display:flex; align-items:center; gap:9px; font-family:'Newsreader', serif; font-weight:600; font-size:20px; }
+  .logo svg{ width:22px; height:22px; }
+  header .cta-mini{
+    font-family:'IBM Plex Sans'; font-size:13.5px; font-weight:600; color:var(--paper);
+    background:var(--moss); border:none; padding:9px 16px; border-radius:999px; cursor:pointer;
+  }
+
+  /* ---------- hero ---------- */
+  .hero{
+    max-width:1120px; margin:0 auto; padding:36px 28px 70px;
+    display:grid; grid-template-columns:1.1fr 0.9fr; gap:50px; align-items:center;
+  }
+  .eyebrow{
+    display:inline-flex; align-items:center; gap:8px; font-family:'IBM Plex Mono'; font-size:12px;
+    letter-spacing:.08em; text-transform:uppercase; color:var(--moss); border:1px solid var(--line);
+    padding:6px 12px; border-radius:999px; background:#fff;
+  }
+  .hero h1{ font-size:clamp(34px, 4.6vw, 56px); line-height:1.08; margin:22px 0 18px; }
+  .hero h1 em{ font-style:italic; color:var(--signal); }
+  .hero p.lede{ font-size:17px; line-height:1.6; color:var(--ink-soft); max-width:46ch; margin:0 0 30px; }
+
+  .signup{ display:flex; gap:10px; flex-wrap:wrap; max-width:480px; }
+  .signup input[type=email]{
+    flex:1; min-width:200px; padding:14px 16px; border-radius:999px; border:1.5px solid var(--line);
+    background:#fff; color:var(--ink); font-family:'IBM Plex Sans'; font-size:15px;
+  }
+  .signup input[type=email]::placeholder{ color:#8b968c; }
+  .signup button{
+    background:var(--signal); color:#fff; border:none; font-weight:700; font-size:14.5px;
+    padding:14px 22px; border-radius:999px; cursor:pointer; white-space:nowrap;
+    transition:transform .15s ease, box-shadow .15s ease; box-shadow:0 10px 22px rgba(230,71,46,0.28);
+  }
+  .signup button:hover{ transform:translateY(-1px); box-shadow:0 14px 28px rgba(230,71,46,0.34); }
+  .signup button:disabled{ opacity:.6; cursor:progress; }
+  .form-note{ font-size:12.5px; color:var(--ink-soft); margin-top:10px; }
+  .form-msg{ font-size:13.5px; margin-top:10px; display:none; }
+  .form-msg.ok{ color:var(--moss); display:block; }
+  .form-msg.err{ color:var(--signal); display:block; }
+
+  /* ---------- signature: receipt visual ---------- */
+  .receipt{
+    background:#fff; border:1px solid var(--line); border-radius:4px; padding:22px 22px 26px;
+    box-shadow:0 26px 50px rgba(22,36,27,0.12); position:relative; max-width:320px; margin:0 auto;
+    transform:rotate(1.5deg);
+  }
+  .receipt::after{
+    content:""; position:absolute; left:0; right:0; bottom:-9px; height:18px;
+    background-image: linear-gradient(135deg, #fff 50%, transparent 50%), linear-gradient(-135deg, #fff 50%, transparent 50%);
+    background-size:16px 18px; background-position:bottom; background-repeat:repeat-x;
+  }
+  .receipt-head{ text-align:center; font-family:'IBM Plex Mono'; font-size:12.5px; letter-spacing:.06em; color:var(--ink-soft); border-bottom:1px dashed var(--line); padding-bottom:12px; margin-bottom:12px; }
+  .receipt-head b{ display:block; font-size:14.5px; color:var(--ink); margin-bottom:3px; font-weight:600; }
+  .receipt-row{
+    display:flex; justify-content:space-between; font-family:'IBM Plex Mono'; font-size:13px;
+    padding:7px 0; color:var(--ink-soft);
+  }
+  .receipt-row.hike{
+    color:var(--signal); font-weight:600; border-top:1px dashed var(--line); margin-top:4px; padding-top:11px;
+  }
+  .receipt-row.hike .badge{
+    background:var(--signal); color:#fff; font-size:10.5px; padding:2px 7px; border-radius:999px; margin-left:6px;
+  }
+  .receipt-total{
+    display:flex; justify-content:space-between; font-family:'IBM Plex Mono'; font-size:13.5px; font-weight:600;
+    border-top:1px dashed var(--line); margin-top:10px; padding-top:11px;
+  }
+
+  /* ---------- problem section ---------- */
+  section.problem{ background:var(--paper-2); padding:80px 28px; }
+  .section-head{ max-width:640px; margin:0 auto 44px; text-align:center; }
+  .section-head .eyebrow{ margin-bottom:16px; }
+  .section-head h2{ font-size:clamp(26px,3.4vw,38px); line-height:1.2; }
+  .problem-grid{ max-width:1120px; margin:0 auto; display:grid; grid-template-columns:repeat(3,1fr); gap:22px; }
+  .problem-card{
+    background:#fff; border:1px solid var(--line); border-radius:var(--radius); padding:26px 22px;
+    display:flex; flex-direction:column; gap:12px;
+  }
+  .problem-card .mark{ font-family:'IBM Plex Mono'; font-size:12px; color:var(--signal); letter-spacing:.05em; }
+  .problem-card h3{ font-size:19px; line-height:1.3; }
+  .problem-card p{ font-size:14.5px; line-height:1.6; color:var(--ink-soft); margin:0; }
+
+  /* ---------- how it works ---------- */
+  section.steps{ padding:80px 28px; }
+  .steps-grid{ max-width:1120px; margin:0 auto; display:grid; grid-template-columns:repeat(3,1fr); gap:30px; }
+  .step{ position:relative; padding-left:52px; }
+  .step .num{
+    position:absolute; left:0; top:0; width:38px; height:38px; border-radius:50%;
+    background:var(--moss); color:#fff; font-family:'IBM Plex Mono'; font-size:14px; font-weight:600;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .step h3{ font-size:18px; margin-bottom:8px; }
+  .step p{ font-size:14.5px; line-height:1.6; color:var(--ink-soft); margin:0; }
+
+  /* ---------- pricing ---------- */
+  section.pricing{ background:var(--paper-2); padding:80px 28px; }
+  .pricing-grid{ max-width:820px; margin:0 auto; display:grid; grid-template-columns:1fr 1fr; gap:22px; }
+  .price-card{ background:#fff; border:1px solid var(--line); border-radius:var(--radius); padding:28px 24px; }
+  .price-card.premium{ border-color:var(--moss); box-shadow:0 20px 40px rgba(47,82,51,0.12); position:relative; }
+  .price-card .tier-tag{ font-family:'IBM Plex Mono'; font-size:11.5px; letter-spacing:.06em; text-transform:uppercase; color:var(--ink-soft); }
+  .price-card.premium .tier-tag{ color:var(--gold); }
+  .price-card .amount{ font-family:'Newsreader', serif; font-size:34px; margin:10px 0 4px; }
+  .price-card .amount span{ font-size:14px; font-family:'IBM Plex Sans'; color:var(--ink-soft); }
+  .price-card ul{ list-style:none; padding:0; margin:18px 0 0; display:flex; flex-direction:column; gap:9px; }
+  .price-card li{ font-size:14px; color:var(--ink-soft); padding-left:20px; position:relative; }
+  .price-card li::before{ content:"—"; position:absolute; left:0; color:var(--moss); }
+
+  /* ---------- final CTA ---------- */
+  section.final-cta{ padding:90px 28px; text-align:center; }
+  section.final-cta h2{ font-size:clamp(28px,4vw,42px); max-width:20ch; margin:0 auto 16px; line-height:1.15; }
+  section.final-cta p{ color:var(--ink-soft); font-size:15.5px; max-width:46ch; margin:0 auto 30px; }
+  .final-cta .signup{ margin:0 auto; justify-content:center; }
+  .waitlist-count{ font-family:'IBM Plex Mono'; font-size:12.5px; color:var(--ink-soft); margin-top:16px; }
+
+  footer{ border-top:1px solid var(--line); padding:28px; text-align:center; font-size:12.5px; color:var(--ink-soft); }
+
+  @media (max-width:860px){
+    .hero{ grid-template-columns:1fr; gap:40px; }
+    .hero .receipt{ order:-1; }
+    .problem-grid, .steps-grid{ grid-template-columns:1fr; }
+    .pricing-grid{ grid-template-columns:1fr; }
+    .step{ padding-left:48px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M4 3h16v18l-3-2-3 2-3-2-3 2-3-2-1 2z" stroke="#2F5233" stroke-width="1.6" stroke-linejoin="round"/>
+      <line x1="7" y1="8" x2="17" y2="8" stroke="#2F5233" stroke-width="1.3"/>
+      <line x1="7" y1="12" x2="14" y2="12" stroke="#E6472E" stroke-width="1.3"/>
+    </svg>
+    Zamlandı
+  </div>
+  <button class="cta-mini" type="button" onclick="document.getElementById('email-hero').focus()">Listeye Katıl</button>
+</header>
+
+<section class="hero">
+  <div>
+    <span class="eyebrow">✦ Çok yakında</span>
+    <h1>Aboneliklerin <em>sessizce</em><br>zamlanmasın.</h1>
+    <p class="lede">Netflix'in, Spotify'ın, sigortanın ne zaman zamlandığını hatırlamıyorsun çünkü kimse hatırlamıyor. Zamlandı, her aboneliğinin fiyat geçmişini tutar ve bir şey değiştiğinde sana haber verir.</p>
+    <form class="signup" id="hero-form">
+      <input type="email" id="email-hero" placeholder="e-posta adresin" required>
+      <button type="submit"><span class="btn-label">Erken Erişime Katıl</span></button>
+    </form>
+    <p class="form-msg" id="hero-msg"></p>
+    <p class="form-note">Yayına çıkınca haber veririz, spam yok.</p>
+  </div>
+
+  <div class="receipt">
+    <div class="receipt-head"><b>Aylık Aboneliklerin</b>Temmuz 2026</div>
+    <div class="receipt-row"><span>Müzik uygulaması</span><span>59,99 TL</span></div>
+    <div class="receipt-row"><span>Dijizi platformu</span><span>149,99 TL</span></div>
+    <div class="receipt-row"><span>Bulut depolama</span><span>34,99 TL</span></div>
+    <div class="receipt-row hike"><span>Dijizi platformu <span class="badge">ZAM</span></span><span>219,99 TL</span></div>
+    <div class="receipt-total"><span>Bu ay fark</span><span>+70,00 TL</span></div>
+  </div>
+</section>
+
+<section class="problem">
+  <div class="section-head">
+    <span class="eyebrow">✦ Tanıdık geliyor mu</span>
+    <h2>Fark etmeden ödediğin paralar</h2>
+  </div>
+  <div class="problem-grid">
+    <div class="problem-card">
+      <span class="mark">01 — hatırlamıyorsun</span>
+      <h3>Netflix ne zaman zamlandı?</h3>
+      <p>Aboneliklerin fiyatı değişti ama sen fark etmedin bile; kart ekstresine bakmadan kimse merak etmiyor.</p>
+    </div>
+    <div class="problem-card">
+      <span class="mark">02 — unutuyorsun</span>
+      <h3>Kullanmadığın abonelikler</h3>
+      <p>Deneme sürümü bittiğinde iptal etmeyi unuttuğun, artık açmadığın uygulamalara hâlâ para veriyor olabilirsin.</p>
+    </div>
+    <div class="problem-card">
+      <span class="mark">03 — dağınık</span>
+      <h3>Toplam ne kadar gidiyor?</h3>
+      <p>Her abonelik ayrı bir yerde; toplamda ayda ne kadar harcadığını tek bakışta gören yok.</p>
+    </div>
+  </div>
+</section>
+
+<section class="steps">
+  <div class="section-head">
+    <span class="eyebrow">✦ Nasıl çalışacak</span>
+    <h2>Üç adımda kontrolü sen al</h2>
+  </div>
+  <div class="steps-grid">
+    <div class="step">
+      <span class="num">1</span>
+      <h3>Aboneliklerini ekle</h3>
+      <p>İsim, fiyat ve yenilenme tarihini gir — banka bilgisi paylaşmana gerek yok.</p>
+    </div>
+    <div class="step">
+      <span class="num">2</span>
+      <h3>Fiyat geçmişi tutulsun</h3>
+      <p>Bir abonelik zamlandığında kaydı güncelle, Zamlandı ne zaman ne kadar zamlandığını saklar.</p>
+    </div>
+    <div class="step">
+      <span class="num">3</span>
+      <h3>Zamanında haber al</h3>
+      <p>Yenilenme tarihi yaklaşınca ya da fiyat değiştiğinde seni uyarır, karar senin olur.</p>
+    </div>
+  </div>
+</section>
+
+<section class="pricing">
+  <div class="section-head">
+    <span class="eyebrow">✦ Planlar</span>
+    <h2>Basit tut, gerektiğinde büyüt</h2>
+  </div>
+  <div class="pricing-grid">
+    <div class="price-card">
+      <span class="tier-tag">Ücretsiz</span>
+      <div class="amount">0 TL</div>
+      <ul>
+        <li>5 aboneliğe kadar takip</li>
+        <li>Fiyat geçmişi kaydı</li>
+        <li>Yenilenme hatırlatması</li>
+      </ul>
+    </div>
+    <div class="price-card premium">
+      <span class="tier-tag">Premium</span>
+      <div class="amount">39 TL<span> / ay</span></div>
+      <ul>
+        <li>Sınırsız abonelik</li>
+        <li>Hazır iptal mesajı şablonları</li>
+        <li>Aylık harcama özeti</li>
+        <li>Öncelikli destek</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section class="final-cta">
+  <h2>Listeye ilk katılanlardan ol</h2>
+  <p>Yayına çıktığımızda önce sana haber verelim. Erken katılanlara ilk 3 ay premium ücretsiz.</p>
+  <form class="signup" id="final-form">
+    <input type="email" id="email-final" placeholder="e-posta adresin" required>
+    <button type="submit"><span class="btn-label">Erken Erişime Katıl</span></button>
+  </form>
+  <p class="form-msg" id="final-msg"></p>
+  <p class="waitlist-count" id="waitlist-count"></p>
+</section>
+
+<footer>Zamlandı — fikir aşamasında, senin geri bildiriminle şekilleniyor.</footer>
+
+<script>
+(function(){
+  async function refreshCount(){
+    try{
+      const res = await fetch('/api/waitlist/count');
+      const data = await res.json();
+      const el = document.getElementById('waitlist-count');
+      if(data.count > 0){
+        el.textContent = data.count + ' kişi zaten listede.';
+      }
+    }catch(err){ /* sessizce geç */ }
+  }
+
+  function wireForm(formId, inputId, msgId){
+    const form = document.getElementById(formId);
+    const input = document.getElementById(inputId);
+    const msg = document.getElementById(msgId);
+    form.addEventListener('submit', async (e)=>{
+      e.preventDefault();
+      const email = input.value.trim();
+      msg.className = 'form-msg';
+      msg.textContent = '';
+      const btn = form.querySelector('button');
+      btn.disabled = true;
+      try{
+        const res = await fetch('/api/waitlist', {
+          method:'POST',
+          headers:{ 'Content-Type':'application/json' },
+          body: JSON.stringify({ email })
+        });
+        const data = await res.json();
+        if(!res.ok) throw new Error(data.error || 'Bir sorun oluştu.');
+        msg.textContent = data.alreadyOnList ? 'Zaten listedesin, teşekkürler!' : 'Listeye eklendin, teşekkürler!';
+        msg.classList.add('ok');
+        input.value = '';
+        refreshCount();
+      }catch(err){
+        msg.textContent = err.message || 'Bir şeyler ters gitti, tekrar dener misin?';
+        msg.classList.add('err');
+      }finally{
+        btn.disabled = false;
+      }
+    });
+  }
+
+  wireForm('hero-form', 'email-hero', 'hero-msg');
+  wireForm('final-form', 'email-final', 'final-msg');
+  refreshCount();
+})();
+</script>
+</body>
+</html>
