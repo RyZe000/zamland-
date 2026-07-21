@@ -50,6 +50,48 @@ app.post('/api/waitlist', (req, res) => {
 app.get('/api/waitlist/count', (req, res) => {
   res.json({ count: loadWaitlist().length });
 });
+function escapeHtml(str) {
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+
+app.get('/admin', (req, res) => {
+  const adminKey = process.env.ADMIN_KEY;
+  if (!adminKey) {
+    return res.status(404).send('Bulunamadı.');
+  }
+  if (req.query.key !== adminKey) {
+    return res.status(401).send('Yetkisiz. ?key=... ekle.');
+  }
+  const list = loadWaitlist().slice().reverse();
+  const rows = list.map(item => `
+    <tr>
+      <td>${escapeHtml(item.email)}</td>
+      <td>${escapeHtml(new Date(item.createdAt).toLocaleString('tr-TR'))}</td>
+    </tr>`).join('');
+  res.send(`<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<title>Zamlandı — Bekleme Listesi</title>
+<style>
+  body{ font-family:sans-serif; background:#f4f4f0; color:#16241b; padding:32px; }
+  h1{ font-size:20px; }
+  table{ border-collapse:collapse; width:100%; max-width:600px; background:#fff; }
+  td{ padding:10px 14px; border-bottom:1px solid #ddd; font-size:14px; }
+  .count{ color:#516152; margin-bottom:20px; }
+</style>
+</head>
+<body>
+  <h1>Bekleme Listesi</h1>
+  <p class="count">${list.length} kişi</p>
+  <table>${rows || '<tr><td>Henüz kimse yok.</td></tr>'}</table>
+</body>
+</html>`);
+});
 
 app.listen(PORT, () => {
   console.log(`Zamlandı bekleme listesi sitesi http://localhost:${PORT} adresinde çalışıyor`);
